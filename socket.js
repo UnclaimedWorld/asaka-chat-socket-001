@@ -49,9 +49,9 @@ function imitateOtherUser(ws, messages) {
 
 wss.on('connection', function(ws, req) {
   let ip = req.socket.remoteAddress;
-  clientsMessages[ip] = {
+  clientsMessages[ip] = clientsMessages[ip] ? clientsMessages[ip] : {
     messages: []
-  }
+  };
   const messages = clientsMessages[ip].messages;
   ws.on('message', function(message) {
     messages.push({
