@@ -37,7 +37,7 @@ let messages = [
   },
 ];
 
-const wss = new ws.WebSocketServer({
+const wss = new ws.WebSocket('ws://asaka-chat-socket-01.herokuapp.com/', {
   port: process.env.PORT || 5000,
 });
 
