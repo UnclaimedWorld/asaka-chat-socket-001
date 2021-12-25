@@ -19,7 +19,7 @@ const users_list = [
     avatar_url: '/images/avatar-01.jpg',
   }
 ];
-const clientsMessages = {};
+const messages = [];
 let id = 0;
 
 const wss = new Server({ server });
@@ -47,12 +47,7 @@ function imitateOtherUser(ws, messages) {
   }, 320);
 }
 
-wss.on('connection', function(ws, req) {
-  let ip = req.socket.remoteAddress || req.connection.socket.remoteAddress;
-  clientsMessages[ip] = clientsMessages[ip] ? clientsMessages[ip] : {
-    messages: []
-  };
-  const messages = clientsMessages[ip].messages;
+wss.on('connection', function(ws) {
   ws.on('message', function(message) {
     messages.push({
       id: id++,
