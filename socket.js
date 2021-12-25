@@ -1,5 +1,9 @@
-const http = require('http');
-const ws = require('ws');
+const { Server } = require('ws');
+const express = require('express');
+
+const PORT = process.env.PORT || 3000;
+
+const server = express().listen(PORT)
 
 const users_list = [
   {
@@ -37,9 +41,7 @@ let messages = [
   },
 ];
 
-const wss = new ws.WebSocket('ws://asaka-chat-socket-01.herokuapp.com/', {
-  port: process.env.PORT || 5000,
-});
+const wss = new Server({ server });
 
 function sendData(ws, data) {
   ws.send(JSON.stringify(data));
