@@ -3,7 +3,7 @@ const express = require('express');
 
 const PORT = process.env.PORT || 3000;
 
-const server = express().listen(PORT)
+const server = express().listen(PORT);
 
 const users_list = [
   {
@@ -19,27 +19,8 @@ const users_list = [
     avatar_url: '/images/avatar-01.jpg',
   }
 ];
-let messages = [
-  {
-    id: 1,
-    user_id: users_list[0].id,
-    message: 'Hello! Finally found the time to write to you) I need your help in creating interactive animations for my mobile application.',
-    created_at: new Date(2021, 12, 22)
-  },
-  {
-    id: 2,
-    user_id: users_list[0].id,
-    message: 'Can I send you files?',
-    created_at: new Date(2021, 12, 22)
-  },
-  {
-    id: 3,
-    user_id: users_list[1].id,
-    message: 'Hey! Okay, send out.',
-    created_at: new Date(),
-    is_read: true
-  },
-];
+const clientsMessages = {};
+let id = 0;
 
 const wss = new Server({ server });
 
@@ -47,16 +28,15 @@ function sendData(ws, data) {
   ws.send(JSON.stringify(data));
 }
 
-function imitateOtherUser(ws) {
+function imitateOtherUser(ws, messages) {
   setTimeout(() => {
-    messages = messages.map(message => ({
-      ...message,
-      is_read: true
-    }));
+    messages.forEach(message => {
+      message.is_read = true;
+    });
     sendData(ws, { messages });
     setTimeout(() => {
       messages.push({
-        id: messages[messages.length - 1].id + 1,
+        id: id++,
         user_id: users_list[0].id,
         message: 'Let\'s imagine it\'s an answer from the other person.',
         created_at: new Date(),
@@ -67,10 +47,15 @@ function imitateOtherUser(ws) {
   }, 320);
 }
 
-wss.on('connection', function(ws) {
+wss.on('connection', function(ws, req) {
+  let ip = req.socket.remoteAddress;
+  clientsMessages[ip] = {
+    messages: []
+  }
+  const messages = clientsMessages[ip].messages;
   ws.on('message', function(message) {
     messages.push({
-      id: messages[messages.length - 1].id + 1,
+      id: id++,
       user_id: users_list[1].id,
       message: message.toString(),
       created_at: new Date(),
@@ -78,11 +63,7 @@ wss.on('connection', function(ws) {
     });
     sendData(ws, { messages });
 
-    imitateOtherUser(ws);
+    imitateOtherUser(ws, messages);
   });
-
-  ws.on('close', function() {
-    console.log('close');
-  });
-  sendData(ws, { messages, users_list });
+  sendData(ws, { users_list });
 });
