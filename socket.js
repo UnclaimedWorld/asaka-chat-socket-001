@@ -65,5 +65,5 @@ wss.on('connection', function(ws, req) {
 
     imitateOtherUser(ws, messages);
   });
-  sendData(ws, { users_list });
+  sendData(ws, { users_list, messages });
 });
